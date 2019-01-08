@@ -1,3 +1,5 @@
+#Data Import
+
 getwd()
 dir_path <-"D:/MSBA/Sem1/IDS575_Advance_Statistics/Project"
 setwd(dir_path)
@@ -136,7 +138,7 @@ default_credit_num <- subset(default_credit,select = c(PAY_0,PAY_2, PAY_3, PAY_4
 default_credit_corr <-cor(default_credit_num)
 corrplot(default_credit_corr, method = "number")
 
-#sampling
+#Creating Development and Validation dataset
 
 set.seed(12)
 indx <- sample(2, nrow(default_credit), replace = TRUE, prob = c(0.7,0.3))
@@ -163,13 +165,13 @@ class(test_data$MARRIAGE)
 test_data$MARRIAGE<- as.factor(test_data$MARRIAGE)
 
 
-# 10 equal size folds
+# create 10 equal size folds
 folds <- cut(seq(1,nrow(default_credit)),breaks=10,labels=FALSE)
 table(folds)
 #output
 folds
 
-#svm
+#Support Vector Machines
 library(caret)
 attach(train_data)
 svm_1<- svm(default.payment.next.month~.,
@@ -209,9 +211,7 @@ model2 <- naiveBayes(train_data$default.payment.next.month~SEX+MARRIAGE+AGE++EDU
 nb_Test_Accuracy1 = predict(model2, newdata = test_data, type = "class")
 confusionMatrix(nb_Test_Accuracy1, test_data$default.payment.next.month)
 
-
-
-# confusion matrix for naive bayes for CV
+# Confusion matrix for naive bayes for CV
 CV_default_n <- lapply(1:10, function(x){ 
   model <-naiveBayes(default.payment.next.month~SEX+MARRIAGE+AGE+EDUCATION+PAY_0+PAY_6+BILL_AMT2+BILL_AMT4 +PAY_AMT3_p+ PAY_AMT5_p,data = default_credit[folds != x,] )
   preds <- predict(model,  default_credit[folds == x,], type= "class")
@@ -221,8 +221,6 @@ CV_default_n <- lapply(1:10, function(x){
 })
 CV_default_n <- do.call(rbind, CV_default_n)
 confusionMatrix(CV_default_n$preds, CV_default_n$real)
-
-
 
 ## Decision Tree
 
@@ -323,9 +321,7 @@ CV_default_logit <- lapply(1:10, function(x){
 CV_default_logit <- do.call(rbind, CV_default_logit)
 confusionMatrix(CV_default_logit$preds1, CV_default_logit$real)
 
-
-
-#adaboost
+#Adaboost
 install.packages("adabag")
 library(adabag)
 
